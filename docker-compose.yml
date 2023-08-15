@@ -1,0 +1,76 @@
+version: "3"
+services:
+  kafka-map:
+    image: dushixiang/kafka-map:latest
+    container_name: kafka-map
+    environment:
+      DEFAULT_USERNAME: ${KAFKA_MAP_DEFAULT_USERNAME}
+      DEFAULT_PASSWORD: ${KAFKA_MAP_DEFAULT_PASSWORD}
+    ports:
+      - "${KAFKA_MAP_HOST_PORT}:8080"
+    restart: always
+    networks:
+      - my-services
+
+  kafka-node-1:
+    image: bitnami/kafka:${KAFKA_VERSION}
+    container_name: kafka-node-1
+    environment:
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_ENABLE_KRAFT=yes
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_KRAFT_CLUSTER_ID=${KAFKA_KRAFT_CLUSTER_ID}
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-node-1:9093,2@kafka-node-2:9093,3@kafka-node-3:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://host.docker.internal:${KAFKA_NODE_1_HOST_PORT}
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
+    ports:
+      - "${KAFKA_NODE_1_HOST_PORT}:9092"
+    networks:
+      - my-services
+
+  kafka-node-2:
+    image: bitnami/kafka:${KAFKA_VERSION}
+    container_name: kafka-node-2
+    environment:
+      - KAFKA_CFG_NODE_ID=2
+      - KAFKA_ENABLE_KRAFT=yes
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_KRAFT_CLUSTER_ID=${KAFKA_KRAFT_CLUSTER_ID}
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-node-1:9093,2@kafka-node-2:9093,3@kafka-node-3:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://host.docker.internal:${KAFKA_NODE_2_HOST_PORT}
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
+    ports:
+      - "${KAFKA_NODE_2_HOST_PORT}:9092"
+    networks:
+      - my-services
+
+  kafka-node-3:
+    image: bitnami/kafka:${KAFKA_VERSION}
+    container_name: kafka-node-3
+    environment:
+      - KAFKA_CFG_NODE_ID=3
+      - KAFKA_ENABLE_KRAFT=yes
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_KRAFT_CLUSTER_ID=${KAFKA_KRAFT_CLUSTER_ID}
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-node-1:9093,2@kafka-node-2:9093,3@kafka-node-3:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://host.docker.internal:${KAFKA_NODE_3_HOST_PORT}
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=false
+    ports:
+      - "${KAFKA_NODE_3_HOST_PORT}:9092"
+    networks:
+      - my-services
+
+networks:
+  my-services:
